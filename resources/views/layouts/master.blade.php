@@ -18,7 +18,7 @@
       <!-- Sidebar scroll-->
       <div>
         <div class="brand-logo d-flex align-items-center justify-content-between">
-          <a href="index.php" class="text-nowrap logo-img">
+          <a href="{{ route('dashboard') }}" class="text-nowrap logo-img">
             <img src="{{ asset('assets/images/logos/logobimbaaiueo-small.jpg') }}" style="height: 50px;" alt="" />
           </a>
           <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
@@ -33,7 +33,7 @@
               <span class="hide-menu">Menu Utama</span>
             </li>
             <li class="sidebar-item">
-              <a class="sidebar-link" href="index.php" aria-expanded="false">
+              <a class="sidebar-link {{ request()->is('siswa') ? '' : 'collapsed'}}" href="{{ route('dashboard')}}" aria-expanded="false">
                 <span>
                   <iconify-icon icon="solar:home-smile-bold-duotone" class="fs-6"></iconify-icon>
                 </span>
@@ -42,32 +42,43 @@
             </li>
             <li class="nav-small-cap">
               <i class="ti ti-dots nav-small-cap-icon fs-6"></i>
-              <span class="hide-menu">Data Agenda</span>
+              <span class="hide-menu">Data Pendaftaran</span>
             </li>
  
             <li class="sidebar-item">
-              <a class="sidebar-link" href="agenda.php" aria-expanded="false">
+              <a class="sidebar-link {{ request()->is('pendaftaran.index') ? '' : 'collapsed'}}" href="{{ route('pendaftaran.index')}}" aria-expanded="false">
                 <span>
                   <iconify-icon icon="mdi:calendar" class="fs-6"></iconify-icon>
                 </span>
-                <span class="hide-menu">Agenda Pengajaran</span>
+                <span class="hide-menu">Form Pendaftaran</span>
               </a>
             </li>
 
+            <li class="nav-small-cap">
+              <i class="ti ti-dots nav-small-cap-icon fs-6"></i>
+              <span class="hide-menu">Data Siswa</span>
+            </li>
+
             <li class="sidebar-item">
-              <a class="sidebar-link" href="agendalain.php" aria-expanded="false">
+              <a class="sidebar-link {{ request()->is('siswa.sesi') ? '' : 'collapsed'}}" href="{{ route('siswa.sesi')}}" aria-expanded="false">
                 <span>
                   <iconify-icon icon="mdi:calendar" class="fs-6"></iconify-icon>
                 </span>
-                <span class="hide-menu">Kegiatan Lainnya</span>
+                <span class="hide-menu">Data Siswa</span>
               </a>
             </li>
+
+            <li class="nav-small-cap">
+              <i class="ti ti-dots nav-small-cap-icon fs-6"></i>
+              <span class="hide-menu">Laporan Data</span>
+            </li>
+
             <li class="sidebar-item">
-              <a class="sidebar-link" href="laporan.php" aria-expanded="false">
+              <a class="sidebar-link {{ request()->is('print.index') ? '' : 'collapsed'}}" href="{{ route('print.index') }}" aria-expanded="false">
                 <span>
                   <iconify-icon icon="solar:text-field-focus-bold-duotone" class="fs-6"></iconify-icon>
                 </span>
-                <span class="hide-menu">Print Laporan Harian</span>
+                <span class="hide-menu">Print Data Siswa</span>
               </a>
             </li>
             <li class="nav-small-cap">
@@ -116,21 +127,30 @@
               <li class="nav-item dropdown">
                 <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown"
                   aria-expanded="false">
-                  <img src="{{ asset('assets/images/profile/user-1.jpg') }}" alt="" width="35" height="35" class="rounded-circle">
+
+                    @php
+                        $user = Auth::user();
+                        $foto_admin = $user && $user->photo 
+                            ? asset('storage/' . $user->photo) 
+                            : asset('assets/images/profile/user-1.jpg');
+                    @endphp
+
+                    <img src="{{ $foto_admin }}" 
+                        alt="Foto Admin" 
+                        width="35" 
+                        height="35" 
+                        class="rounded-circle" 
+                        style="object-fit: cover;">
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
                   <div class="message-body">
-                    <a href="profil-card.php" class="d-flex align-items-center gap-2 dropdown-item">
+                    <a href="{{ route('admin.index') }}" class="d-flex align-items-center gap-2 dropdown-item">
                       <i class="ti ti-user fs-6"></i>
                       <p class="mb-0 fs-3">Profil Saya</p>
                     </a>
-                    <a href="profil-card.php" class="d-flex align-items-center gap-2 dropdown-item">
-                      <i class="ti ti-mail fs-6"></i>
-                      <p class="mb-0 fs-3">Ganti Password</p>
-                    </a>
-                    <a href="agenda.php" class="d-flex align-items-center gap-2 dropdown-item">
+                    <a href="{{ route('pendaftaran.index')}}" class="d-flex align-items-center gap-2 dropdown-item">
                       <i class="ti ti-list-check fs-6"></i>
-                      <p class="mb-0 fs-3">Agenda Pengajaran</p>
+                      <p class="mb-0 fs-3">Form Pendaftaran</p>
                     </a>
                     <a href="#" class="btn btn-outline-primary mx-3 mt-2 d-block" data-bs-toggle="modal" data-bs-target="#logoutmodal">Logout</a>
                   </div>
@@ -147,7 +167,7 @@
     <div class="card-body">
       <div class="row">
         <div class="col-sm-6">
-          <h5>Selamat Datang, <b class="text-danger">Dhai</b></h5>
+          <h5>Selamat Datang, <b class="text-danger">{{ Auth::user()->name }}</b></h5>
         </div>
         <div class="col-sm-6 text-end">
           <h5>Hari ini: <?php echo date("d F Y"); ?></h5>
@@ -173,7 +193,8 @@
                   <br>
               </div>
               <div class="modal-footer" style="justify-content: center;">
-                <form action="" method="POST">
+                <form action="{{ route('logout') }}" method="POST">
+                  @csrf
                   <button type="submit" name="logout" id="logout" value="logout" class="btn btn-danger">Logout</button>
                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 </form>
@@ -199,7 +220,7 @@
      <!--footer start -->
 
 
-              <div class="py-6 px-6 text-center">
+        <div class="py-6 px-6 text-center">
           <p class="mb-0 fs-4">Projek Pendafataran Bimba oleh <strong>Dhaisal Cahya Zakaria</strong> </p>
         </div>
   <script src="{{ asset ('assets/libs/jquery/dist/jquery.min.js')}}"></script>
